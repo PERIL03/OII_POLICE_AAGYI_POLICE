@@ -1,0 +1,28 @@
+{
+  "name": "cryptotrace",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "prisma",
+    "backend",
+    "worker",
+    "frontend"
+  ],
+  "scripts": {
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:integration": "npm run test:integration --workspaces --if-present",
+    "prisma:generate": "npx prisma generate --schema=prisma/schema.prisma",
+    "prisma:migrate": "npx prisma migrate dev --schema=prisma/schema.prisma",
+    "prisma:deploy": "npx prisma migrate deploy --schema=prisma/schema.prisma",
+    "prisma:validate": "npx prisma validate --schema=prisma/schema.prisma",
+    "prisma:studio": "npx prisma studio --schema=prisma/schema.prisma",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

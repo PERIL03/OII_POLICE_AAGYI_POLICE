@@ -1,0 +1,262 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────
+
+enum Role {
+  INVESTIGATOR
+  ANALYST
+  ADMIN
+}
+
+enum Chain {
+  BTC
+  ETH
+}
+
+enum TxStatus {
+  MEMPOOL
+  CONFIRMED
+}
+
+enum LabelSource {
+  OFAC_SDN
+  CRYPTOSCAMDB
+  INTERNAL_ANALYST
+  EXCHANGE_TAG
+}
+
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AlertType {
+  WATCHLIST_ACTIVITY
+  SANCTIONS_MATCH
+  ANOMALY_STRUCTURING
+  ANOMALY_FANOUT
+  ANOMALY_FANIN
+  DORMANT_REACTIVATION
+  MIXER_INTERACTION
+}
+
+enum CaseStatus {
+  OPEN
+  UNDER_REVIEW
+  CLOSED
+}
+
+// ─── Models ──────────────────────────────────────────────────────────
+
+model User {
+  id                 String           @id @default(uuid())
+  name               String
+  email              String           @unique
+  passwordHash       String
+  role               Role
+  badgeId            String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  cases              Case[]
+  watchlistEntries   WatchlistEntry[]
+  caseEvidence       CaseEvidence[]
+  caseNotes          CaseNote[]
+  auditLogs          AuditLog[]
+  acknowledgedAlerts Alert[]          @relation("AlertAcknowledgedBy")
+
+  @@index([email])
+}
+
+model Wallet {
+  id               String             @id @default(uuid())
+  chain            Chain
+  address          String
+  firstSeenAt      DateTime?
+  lastSeenAt       DateTime?
+  balance          Decimal            @default(0)
+  currentRiskScore Int                @default(0)
+  entityLabel      String?
+  isWatchlisted    Boolean            @default(false)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  outgoingTx       Transaction[]      @relation("FromWallet")
+  incomingTx       Transaction[]      @relation("ToWallet")
+  txInputs         TxInput[]
+  txOutputs        TxOutput[]
+  labels           Label[]
+  riskHistory      RiskScoreHistory[]
+  watchlistEntries WatchlistEntry[]
+  alerts           Alert[]
+  caseEvidence     CaseEvidence[]
+
+  @@unique([chain, address])
+}
+
+model Transaction {
+  id              String        @id @default(uuid())
+  chain           Chain
+  txHash          String
+  fromWalletId    String?
+  toWalletId      String?
+  amount          Decimal
+  amountUsdAtTime Decimal?
+  blockHeight     Int?
+  status          TxStatus
+  confirmedAt     DateTime?
+  ingestedAt      DateTime      @default(now())
+  rawPayload      Json
+
+  fromWallet      Wallet?       @relation("FromWallet", fields: [fromWalletId], references: [id])
+  toWallet        Wallet?       @relation("ToWallet", fields: [toWalletId], references: [id])
+  inputs          TxInput[]
+  outputs         TxOutput[]
+  alerts          Alert[]
+  caseEvidence    CaseEvidence[]
+
+  @@unique([chain, txHash])
+  @@index([fromWalletId])
+  @@index([toWalletId])
+}
+
+model TxInput {
+  id            String      @id @default(uuid())
+  transactionId String
+  walletId      String
+  value         Decimal
+  index         Int
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  wallet        Wallet      @relation(fields: [walletId], references: [id])
+}
+
+model TxOutput {
+  id            String      @id @default(uuid())
+  transactionId String
+  walletId      String
+  value         Decimal
+  index         Int
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  wallet        Wallet      @relation(fields: [walletId], references: [id])
+}
+
+model Label {
+  id          String      @id @default(uuid())
+  walletId    String
+  source      LabelSource
+  category    String
+  description String?
+  sourceUrl   String?
+  detectedAt  DateTime    @default(now())
+  wallet      Wallet      @relation(fields: [walletId], references: [id])
+
+  @@index([walletId])
+}
+
+model RiskScoreHistory {
+  id         String   @id @default(uuid())
+  walletId   String
+  score      Int
+  reasons    Json
+  computedAt DateTime @default(now())
+  wallet     Wallet   @relation(fields: [walletId], references: [id])
+
+  @@index([walletId])
+}
+
+model WatchlistEntry {
+  id            String   @id @default(uuid())
+  walletId      String
+  addedByUserId String
+  caseId        String?
+  reason        String?
+  createdAt     DateTime @default(now())
+
+  wallet        Wallet   @relation(fields: [walletId], references: [id])
+  addedBy       User     @relation(fields: [addedByUserId], references: [id])
+  case          Case?    @relation(fields: [caseId], references: [id])
+  alerts        Alert[]
+}
+
+model Alert {
+  id                   String          @id @default(uuid())
+  watchlistEntryId     String?
+  walletId             String
+  transactionId        String?
+  severity             AlertSeverity
+  type                 AlertType
+  message              String
+  acknowledgedByUserId String?
+  acknowledgedAt       DateTime?
+  createdAt            DateTime        @default(now())
+
+  watchlistEntry       WatchlistEntry? @relation(fields: [watchlistEntryId], references: [id])
+  wallet               Wallet          @relation(fields: [walletId], references: [id])
+  transaction          Transaction?    @relation(fields: [transactionId], references: [id])
+  acknowledgedBy       User?           @relation("AlertAcknowledgedBy", fields: [acknowledgedByUserId], references: [id])
+
+  @@index([createdAt(sort: Desc)])
+}
+
+model Case {
+  id               String           @id @default(uuid())
+  title            String
+  firNumber        String?
+  status           CaseStatus       @default(OPEN)
+  createdByUserId  String
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  createdBy        User             @relation(fields: [createdByUserId], references: [id])
+  evidence         CaseEvidence[]
+  notes            CaseNote[]
+  watchlistEntries WatchlistEntry[]
+}
+
+model CaseEvidence {
+  id            String       @id @default(uuid())
+  caseId        String
+  walletId      String?
+  transactionId String?
+  addedByUserId String
+  createdAt     DateTime     @default(now())
+
+  case          Case         @relation(fields: [caseId], references: [id])
+  wallet        Wallet?      @relation(fields: [walletId], references: [id])
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+  addedBy       User         @relation(fields: [addedByUserId], references: [id])
+}
+
+model CaseNote {
+  id        String   @id @default(uuid())
+  caseId    String
+  authorId  String
+  body      String
+  createdAt DateTime @default(now())
+
+  case      Case     @relation(fields: [caseId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json
+  createdAt  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@index([createdAt(sort: Desc)])
+  @@index([userId])
+}

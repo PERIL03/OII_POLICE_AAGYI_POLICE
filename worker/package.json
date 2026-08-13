@@ -1,0 +1,35 @@
+{
+  "name": "@cryptotrace/worker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/worker.ts",
+    "build": "tsc",
+    "start": "node dist/worker.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
+  },
+  "dependencies": {
+    "@cryptotrace/shared": "*",
+    "@prisma/client": "^6.8.0",
+    "bullmq": "^5.20.0",
+    "dotenv": "^16.4.0",
+    "ioredis": "^5.4.0",
+    "pino": "^9.4.0",
+    "pino-pretty": "^11.2.0",
+    "ws": "^8.18.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.5.12",
+    "eslint": "^9.0.0",
+    "prisma": "^6.8.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.1.0"
+  }
+}
