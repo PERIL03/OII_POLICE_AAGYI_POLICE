@@ -7,14 +7,13 @@
 
 import pino from 'pino';
 import { prisma } from './prisma';
-import axios from 'axios';
 
 const logger = pino({ name: 'embedded-worker' });
 
 export async function initEmbeddedWorker() {
   logger.info('⚡ Initializing embedded background worker tasks...');
 
-  // 1. Sync Sanctions Datasets in background (non-blocking)
+  // Sync Sanctions Datasets in background (non-blocking)
   setTimeout(() => {
     void (async () => {
       try {
@@ -42,17 +41,26 @@ async function syncOfacSdn() {
       create: { chain: item.chain as any, address: item.address.toLowerCase(), currentRiskScore: 95 },
     });
 
-    await prisma.label.upsert({
-      where: { walletId_source_category: { walletId: wallet.id, source: 'OFAC_SDN', category: 'SANCTIONS' } },
-      update: { description: item.entity },
-      create: {
-        walletId: wallet.id,
-        source: 'OFAC_SDN',
-        category: 'SANCTIONS',
-        description: item.entity,
-        sourceUrl: 'https://sanctionssearch.ofac.treas.gov/',
-      },
+    const existingLabel = await prisma.label.findFirst({
+      where: { walletId: wallet.id, source: 'OFAC_SDN', category: 'SANCTIONS' },
     });
+
+    if (existingLabel) {
+      await prisma.label.update({
+        where: { id: existingLabel.id },
+        data: { description: item.entity },
+      });
+    } else {
+      await prisma.label.create({
+        data: {
+          walletId: wallet.id,
+          source: 'OFAC_SDN',
+          category: 'SANCTIONS',
+          description: item.entity,
+          sourceUrl: 'https://sanctionssearch.ofac.treas.gov/',
+        },
+      });
+    }
   }
 
   logger.info('✅ Embedded OFAC SDN dataset sync complete');

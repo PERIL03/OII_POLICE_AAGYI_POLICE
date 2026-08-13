@@ -13,8 +13,10 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "./dist",
-    "rootDir": "./src"
+    "baseUrl": ".",
+    "paths": {
+      "@cryptotrace/shared": ["shared/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "dist"]
 }
