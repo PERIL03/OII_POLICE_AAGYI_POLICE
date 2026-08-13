@@ -1,10 +1,10 @@
 services:
-  # Express API Web Service + Socket.IO
+  # Express API Web Service + Socket.IO (Free Tier)
   - type: web
     name: cryptotrace-api
     env: node
     region: singapore
-    plan: starter
+    plan: free
     buildCommand: npm ci && npm run build --workspace=shared && npm run build --workspace=backend
     startCommand: npm run start --workspace=backend
     envVars:
@@ -26,12 +26,12 @@ services:
       - key: FRONTEND_ORIGIN
         value: https://cryptotrace-frontend.vercel.app,http://localhost:3000
 
-  # Render Background Ingestion Worker
+  # Render Background Ingestion Worker (Free Tier)
   - type: worker
     name: cryptotrace-worker
     env: node
     region: singapore
-    plan: starter
+    plan: free
     buildCommand: npm ci && npm run build --workspace=shared && npm run build --workspace=worker
     startCommand: npm run start --workspace=worker
     envVars:
@@ -48,13 +48,13 @@ services:
           property: connectionString
 
 databases:
-  # Render Managed PostgreSQL
+  # Render Managed PostgreSQL (Free Tier)
   - name: cryptotrace-db
     databaseName: cryptotrace
-    plan: starter
+    plan: free
     region: singapore
 
-  # Render Managed Redis
+  # Render Managed Redis (Free Tier)
   - name: cryptotrace-redis
-    plan: starter
+    plan: free
     region: singapore
