@@ -13,7 +13,7 @@
     "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
-    "@cryptotrace/shared": "*",
+    "@cryptotrace/shared": "file:../shared",
     "@prisma/client": "^6.8.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",

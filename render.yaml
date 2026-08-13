@@ -5,7 +5,7 @@ services:
     env: node
     region: singapore
     plan: free
-    buildCommand: npm ci && npm run build --workspace=shared && npx prisma generate --schema=prisma/schema.prisma && npm run build --workspace=backend
+    buildCommand: npm install && npm run build --workspace=shared && npx prisma generate --schema=prisma/schema.prisma && npm run build --workspace=backend
     startCommand: npx prisma migrate deploy --schema=prisma/schema.prisma && npm run start --workspace=backend
     envVars:
       - key: NODE_VERSION
