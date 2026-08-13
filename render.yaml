@@ -5,7 +5,7 @@ services:
     env: node
     region: singapore
     plan: free
-    buildCommand: npm install && cp -r shared/src backend/src/shared && npx prisma generate --schema=prisma/schema.prisma && npx tsc -p backend/tsconfig.json
+    buildCommand: npm install --production=false && npx prisma generate --schema=prisma/schema.prisma
     startCommand: npx prisma migrate deploy --schema=prisma/schema.prisma && node backend/dist/index.js
     envVars:
       - key: NODE_VERSION
