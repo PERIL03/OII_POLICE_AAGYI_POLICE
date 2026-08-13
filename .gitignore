@@ -41,3 +41,6 @@ coverage/
 # Generated
 *.generated.*
 prisma/generated/
+
+# TypeScript build info (incremental cache)
+*.tsbuildinfo
