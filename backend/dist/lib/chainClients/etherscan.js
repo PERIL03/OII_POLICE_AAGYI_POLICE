@@ -19,8 +19,9 @@ exports.weiToEth = weiToEth;
 const redis_1 = require("../redis");
 const pino_1 = __importDefault(require("pino"));
 const logger = (0, pino_1.default)({ name: 'etherscan-client' });
-const BASE_URL = 'https://api.etherscan.io/api';
+const BASE_URL = 'https://api.etherscan.io/v2/api';
 const API_KEY = process.env.ETHERSCAN_API_KEY || '';
+const CHAIN_ID = '1'; // Ethereum mainnet
 const CACHE_TTL_ADDRESS = 60; // 60s for address balance
 const CACHE_TTL_TX = 120; // 2 min for tx list
 const CACHE_TTL_INTERNALTX = 120;
@@ -74,7 +75,7 @@ async function cachedFetch(cacheKey, ttl, fetcher) {
  */
 async function getBalance(address) {
     return cachedFetch(`etherscan:balance:${address}`, CACHE_TTL_ADDRESS, async () => {
-        const url = `${BASE_URL}?module=account&action=balance&address=${address}&tag=latest&apikey=${API_KEY}`;
+        const url = `${BASE_URL}?chainid=${CHAIN_ID}&module=account&action=balance&address=${address}&tag=latest&apikey=${API_KEY}`;
         logger.info({ address }, 'Fetching ETH balance from Etherscan');
         const res = await fetchWithRetry(url);
         const data = (await res.json());
@@ -93,7 +94,7 @@ async function getBalance(address) {
  */
 async function getTransactions(address, startblock = 0, endblock = 99999999, page = 1, offset = 50) {
     return cachedFetch(`etherscan:txlist:${address}:${startblock}:${endblock}:${page}:${offset}`, CACHE_TTL_TX, async () => {
-        const url = `${BASE_URL}?module=account&action=txlist&address=${address}&startblock=${startblock}&endblock=${endblock}&page=${page}&offset=${offset}&sort=desc&apikey=${API_KEY}`;
+        const url = `${BASE_URL}?chainid=${CHAIN_ID}&module=account&action=txlist&address=${address}&startblock=${startblock}&endblock=${endblock}&page=${page}&offset=${offset}&sort=desc&apikey=${API_KEY}`;
         logger.info({ address, page, offset }, 'Fetching ETH transactions from Etherscan');
         const res = await fetchWithRetry(url);
         const data = (await res.json());
@@ -110,7 +111,7 @@ async function getTransactions(address, startblock = 0, endblock = 99999999, pag
  */
 async function getInternalTransactions(address, startblock = 0, endblock = 99999999, page = 1, offset = 50) {
     return cachedFetch(`etherscan:txlistinternal:${address}:${startblock}:${endblock}:${page}`, CACHE_TTL_INTERNALTX, async () => {
-        const url = `${BASE_URL}?module=account&action=txlistinternal&address=${address}&startblock=${startblock}&endblock=${endblock}&page=${page}&offset=${offset}&sort=desc&apikey=${API_KEY}`;
+        const url = `${BASE_URL}?chainid=${CHAIN_ID}&module=account&action=txlistinternal&address=${address}&startblock=${startblock}&endblock=${endblock}&page=${page}&offset=${offset}&sort=desc&apikey=${API_KEY}`;
         logger.info({ address }, 'Fetching ETH internal transactions');
         const res = await fetchWithRetry(url);
         const data = (await res.json());
@@ -127,7 +128,7 @@ async function getInternalTransactions(address, startblock = 0, endblock = 99999
  */
 async function getERC20Transfers(address, page = 1, offset = 50) {
     return cachedFetch(`etherscan:tokentx:${address}:${page}`, CACHE_TTL_TX, async () => {
-        const url = `${BASE_URL}?module=account&action=tokentx&address=${address}&page=${page}&offset=${offset}&sort=desc&apikey=${API_KEY}`;
+        const url = `${BASE_URL}?chainid=${CHAIN_ID}&module=account&action=tokentx&address=${address}&page=${page}&offset=${offset}&sort=desc&apikey=${API_KEY}`;
         logger.info({ address }, 'Fetching ERC-20 transfers');
         const res = await fetchWithRetry(url);
         const data = (await res.json());
