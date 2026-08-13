@@ -17,6 +17,7 @@ import { watchlistRouter } from './routes/watchlist';
 import { alertsRouter } from './routes/alerts';
 import { auditLogsRouter } from './routes/auditLogs';
 import { reportsRouter } from './routes/reports';
+import { initEmbeddedWorker } from './lib/workerEmbed';
 import { requireAuth, requireRole, AuthenticatedRequest } from './middleware/auth';
 import { prisma } from './lib/prisma';
 
@@ -99,6 +100,7 @@ const PORT = parseInt(process.env.PORT || '4000', 10);
 httpServer.listen(PORT, () => {
   logger.info(`🚀 CryptoTrace API server listening on port ${PORT}`);
   logger.info(`   Health: http://localhost:${PORT}/health`);
+  initEmbeddedWorker().catch((err) => logger.error({ err }, 'Worker initialization error'));
 });
 
 // ─── Graceful Shutdown ───────────────────────────────────────────────
