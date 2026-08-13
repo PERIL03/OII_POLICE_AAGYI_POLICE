@@ -20,6 +20,10 @@ services:
         value: 4000
       - key: FRONTEND_ORIGIN
         value: https://cryptotrace-frontend.vercel.app,http://localhost:3000
+      - key: ETHERSCAN_API_KEY
+        sync: false
+      - key: REDIS_URL
+        sync: false
 
 databases:
   # Render Managed PostgreSQL (100% Free Tier)
