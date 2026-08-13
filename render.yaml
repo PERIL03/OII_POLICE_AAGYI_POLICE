@@ -51,7 +51,6 @@ databases:
   # Render Managed PostgreSQL
   - name: cryptotrace-db
     databaseName: cryptotrace
-    user: postgres
     plan: starter
     region: singapore
 
