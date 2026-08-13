@@ -14,11 +14,6 @@ services:
         fromDatabase:
           name: cryptotrace-db
           property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: cryptotrace-redis
-          property: connectionString
       - key: JWT_SECRET
         generateValue: true
       - key: PORT
@@ -41,20 +36,10 @@ services:
         fromDatabase:
           name: cryptotrace-db
           property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: cryptotrace-redis
-          property: connectionString
 
 databases:
   # Render Managed PostgreSQL (Free Tier)
   - name: cryptotrace-db
     databaseName: cryptotrace
-    plan: free
-    region: singapore
-
-  # Render Managed Redis (Free Tier)
-  - name: cryptotrace-redis
     plan: free
     region: singapore
