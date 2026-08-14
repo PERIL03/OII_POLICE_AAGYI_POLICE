@@ -27,7 +27,7 @@ exports.healthRouter.get('/', async (_req, res) => {
     catch (err) {
         checks.redis = 'disconnected';
     }
-    const isHealthy = checks.postgres === 'connected' && checks.redis === 'connected';
+    const isHealthy = checks.postgres === 'connected';
     res.status(isHealthy ? 200 : 503).json(checks);
 });
 //# sourceMappingURL=health.js.map

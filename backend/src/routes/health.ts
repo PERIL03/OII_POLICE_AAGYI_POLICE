@@ -27,7 +27,7 @@ healthRouter.get('/', async (_req: Request, res: Response) => {
     checks.redis = 'disconnected';
   }
 
-  const isHealthy = checks.postgres === 'connected' && checks.redis === 'connected';
+  const isHealthy = checks.postgres === 'connected';
 
   res.status(isHealthy ? 200 : 503).json(checks);
 });
