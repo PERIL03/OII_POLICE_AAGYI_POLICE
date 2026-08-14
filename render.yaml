@@ -19,7 +19,7 @@ services:
       - key: PORT
         value: 4000
       - key: FRONTEND_ORIGIN
-        value: https://cryptotrace-rishu-rajs-projects-d7b03cac.vercel.app,http://localhost:3000
+        value: https://cryptotrace-orcin.vercel.app,http://localhost:3000
       - key: ETHERSCAN_API_KEY
         sync: false
       - key: REDIS_URL
