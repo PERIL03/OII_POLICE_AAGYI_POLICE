@@ -11,11 +11,11 @@ confidence that the system genuinely works against real chains.
 
 ```
         ┌───────────────────────┐
-        │  E2E (Playwright)      │  a few critical flows
+        │  E2E (Playwright)     │  a few critical flows
         ├───────────────────────┤
-        │  Integration            │  real external APIs (scheduled/manual), DB-backed
+        │  Integration          │  real external APIs (scheduled/manual), DB-backed
         ├───────────────────────┤
-        │  Unit                    │  pure logic: risk rules, validators, formatters
+        │  Unit                 │  pure logic: risk rules, validators, formatters
         └───────────────────────┘
 ```
 
