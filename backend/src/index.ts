@@ -40,11 +40,30 @@ const io = new SocketIOServer(httpServer, {
 
 // ─── Middleware ───────────────────────────────────────────────────────
 
-app.use(helmet());
-app.use(cors({
-  origin: process.env.FRONTEND_ORIGIN?.split(',') || ['http://localhost:3000'],
-  credentials: true,
-}));
+const allowedOrigins = (process.env.FRONTEND_ORIGIN || 'http://localhost:3000,http://localhost:3001')
+  .split(',')
+  .map((s) => s.trim());
+
+app.use(helmet({ crossOriginResourcePolicy: false }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.startsWith('http://localhost:') ||
+        origin.startsWith('http://127.0.0.1:')
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  })
+);
 app.use(express.json());
 
 // Global rate limiter
