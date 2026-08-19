@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../lib/prisma';
 import { loginRequestSchema, registerRequestSchema } from '@cryptotrace/shared';
-import { logger } from '../index';
+import { logger } from '../lib/logger';
 
 export const authRouter = Router();
 

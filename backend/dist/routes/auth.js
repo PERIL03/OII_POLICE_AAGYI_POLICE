@@ -9,7 +9,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const prisma_1 = require("../lib/prisma");
 const shared_1 = require("@cryptotrace/shared");
-const index_1 = require("../index");
+const logger_1 = require("../lib/logger");
 exports.authRouter = (0, express_1.Router)();
 const JWT_SECRET = process.env.JWT_SECRET || 'change-me-to-a-real-secret';
 const JWT_EXPIRES_IN = '24h';
@@ -51,11 +51,11 @@ exports.authRouter.post('/register', async (req, res) => {
         });
         // Issue JWT
         const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-        index_1.logger.info({ userId: user.id, email: user.email }, 'User registered');
+        logger_1.logger.info({ userId: user.id, email: user.email }, 'User registered');
         res.status(201).json({ user, token });
     }
     catch (err) {
-        index_1.logger.error({ err }, 'Registration failed');
+        logger_1.logger.error({ err }, 'Registration failed');
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -95,7 +95,7 @@ exports.authRouter.post('/login', async (req, res) => {
                 metadata: { email: user.email },
             },
         });
-        index_1.logger.info({ userId: user.id, email: user.email }, 'User logged in');
+        logger_1.logger.info({ userId: user.id, email: user.email }, 'User logged in');
         res.json({
             user: {
                 id: user.id,
@@ -108,7 +108,7 @@ exports.authRouter.post('/login', async (req, res) => {
         });
     }
     catch (err) {
-        index_1.logger.error({ err }, 'Login failed');
+        logger_1.logger.error({ err }, 'Login failed');
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -140,7 +140,7 @@ exports.authRouter.get('/me', async (req, res) => {
             res.status(401).json({ error: 'Invalid token' });
             return;
         }
-        index_1.logger.error({ err }, 'Get profile failed');
+        logger_1.logger.error({ err }, 'Get profile failed');
         res.status(500).json({ error: 'Internal server error' });
     }
 });

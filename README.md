@@ -124,8 +124,8 @@ Every wallet and transaction analyzed by CryptoTrace is scored between **0 (Safe
                          └───┬─────────────────────────┬───┘
                              │                         │
                  ┌───────────▼───────────┐ ┌───────────▼───────────┐
-                 │    Render Postgres    │ │       Render Redis      │
-                 │     (Prisma ORM)      │ │   (Cache + BullMQ Jobs) │
+                 │    Render Postgres    │ │     Render Redis      │
+                 │     (Prisma ORM)      │ │ (Cache + BullMQ Jobs) │
                  └───────────▲───────────┘ └───────────▲───────────┘
                              │                         │
                          ┌───┴─────────────────────────┴───┐

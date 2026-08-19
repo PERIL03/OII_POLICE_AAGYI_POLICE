@@ -1,6 +1,6 @@
 import { Server as SocketIOServer } from 'socket.io';
-import pino from 'pino';
-export declare const logger: pino.Logger<never, boolean>;
+import { logger } from './lib/logger';
+export { logger };
 declare const app: import("express-serve-static-core").Express;
 declare const httpServer: import("http").Server<typeof import("http").IncomingMessage, typeof import("http").ServerResponse>;
 declare const io: SocketIOServer<import("socket.io").DefaultEventsMap, import("socket.io").DefaultEventsMap, import("socket.io").DefaultEventsMap, any>;

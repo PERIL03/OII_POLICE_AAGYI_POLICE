@@ -21,14 +21,8 @@ import { initEmbeddedWorker } from './lib/workerEmbed';
 import { requireAuth, requireRole, AuthenticatedRequest } from './middleware/auth';
 import { prisma } from './lib/prisma';
 
-// ─── Logger ──────────────────────────────────────────────────────────
-
-export const logger = pino({
-  transport: {
-    target: 'pino-pretty',
-    options: { colorize: true },
-  },
-});
+import { logger } from './lib/logger';
+export { logger };
 
 // ─── Express App ─────────────────────────────────────────────────────
 

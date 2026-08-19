@@ -12,7 +12,6 @@ const helmet_1 = __importDefault(require("helmet"));
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
-const pino_1 = __importDefault(require("pino"));
 const health_1 = require("./routes/health");
 const auth_1 = require("./routes/auth");
 const wallet_1 = require("./routes/wallet");
@@ -24,13 +23,8 @@ const reports_1 = require("./routes/reports");
 const workerEmbed_1 = require("./lib/workerEmbed");
 const auth_2 = require("./middleware/auth");
 const prisma_1 = require("./lib/prisma");
-// ─── Logger ──────────────────────────────────────────────────────────
-exports.logger = (0, pino_1.default)({
-    transport: {
-        target: 'pino-pretty',
-        options: { colorize: true },
-    },
-});
+const logger_1 = require("./lib/logger");
+Object.defineProperty(exports, "logger", { enumerable: true, get: function () { return logger_1.logger; } });
 // ─── Express App ─────────────────────────────────────────────────────
 const app = (0, express_1.default)();
 exports.app = app;
@@ -79,21 +73,21 @@ app.get('/api/admin-only', auth_2.requireAuth, (0, auth_2.requireRole)('ADMIN'),
 });
 // ─── Socket.IO ───────────────────────────────────────────────────────
 io.on('connection', (socket) => {
-    exports.logger.info({ socketId: socket.id }, 'Client connected');
+    logger_1.logger.info({ socketId: socket.id }, 'Client connected');
     socket.on('disconnect', () => {
-        exports.logger.info({ socketId: socket.id }, 'Client disconnected');
+        logger_1.logger.info({ socketId: socket.id }, 'Client disconnected');
     });
 });
 // ─── Start Server ────────────────────────────────────────────────────
 const PORT = parseInt(process.env.PORT || '4000', 10);
 httpServer.listen(PORT, () => {
-    exports.logger.info(`🚀 CryptoTrace API server listening on port ${PORT}`);
-    exports.logger.info(`   Health: http://localhost:${PORT}/health`);
-    (0, workerEmbed_1.initEmbeddedWorker)().catch((err) => exports.logger.error({ err }, 'Worker initialization error'));
+    logger_1.logger.info(`🚀 CryptoTrace API server listening on port ${PORT}`);
+    logger_1.logger.info(`   Health: http://localhost:${PORT}/health`);
+    (0, workerEmbed_1.initEmbeddedWorker)().catch((err) => logger_1.logger.error({ err }, 'Worker initialization error'));
 });
 // ─── Graceful Shutdown ───────────────────────────────────────────────
 const shutdown = async () => {
-    exports.logger.info('Shutting down...');
+    logger_1.logger.info('Shutting down...');
     await prisma_1.prisma.$disconnect();
     httpServer.close();
     process.exit(0);
